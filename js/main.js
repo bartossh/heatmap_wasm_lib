@@ -3,7 +3,7 @@ const danzing = function(_p5, config, data) {
   let heatMap;
 
   function isConfigOk(config) {
-    if (!!config.displayToggle) {
+    if (!config.displayToggle) {
       if (config.displayToggle !== 'square' || config.displayToggle !== 'ellipse' || config.displayToggle !== 'rounded' || config.displayToggle !== 'square') {
         return false;
       }
@@ -41,7 +41,7 @@ const danzing = function(_p5, config, data) {
     let img;
     let imgUrl;
     let coordinates;
-    if (config.imgUrl) {
+    if (!!config.imgUrl) {
       imgUrl = config.imgUrl;
       sketch.preload = function() {
       img = sketch.loadImage(imgUrl);
@@ -52,6 +52,8 @@ const danzing = function(_p5, config, data) {
       sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
       sketch.colorMode(sketch.HSB);
       sketch.textAlign(sketch.CENTER);
+      sketch.noStroke();
+      sketch.strokeWeight(0);
 
       heatMap = new HeatMap(gridWidth, gridHeight);
       if (isStatic) {
@@ -70,19 +72,11 @@ const danzing = function(_p5, config, data) {
       if(gridWidth != heatMap.width || gridHeight != heatMap.height)
         heatMap = new HeatMap(gridWidth, gridHeight);
 
-      if (counter === maxCounted) {
-        coordinates = {
-          x: Math.floor(sketch.random(this.width)),
-          y: Math.floor(sketch.random(this.height))
-        };
-        counter = 0;
-        maxCounted = Math.floor(sketch.random(60));
-      }
-      counter++;
-
       sketch.background('rgba(255,255,255, 0.25)');
       sketch.tint(225, 120);
-      sketch.image(img, 0, 0);
+      if (!!img) {
+        sketch.image(img, 0, 0);
+      }
       heatMap.update();
       heatMap.display();
 
@@ -220,4 +214,28 @@ const danzing = function(_p5, config, data) {
   }
 }
 
-danzing(p5);
+const config = {
+  heatSpread: 20,
+  brushRadius: 5,
+  brushIntensity: 20,
+  gridWidth: 200,
+  gridHeight: 100,
+  cellSize: 15,
+  cellSpacing: 30,
+  canApplyHeat: true,
+  isStatic: true,
+  imgUrl: 'https://whatcouldicook.com/wp-content/uploads/2018/09/small-office-building-plans-elegant-endearing-simple-floor-plan-design-9-a-house-plans-designing-best-of-small-office-building-plans.jpg',
+  displayToggle: 'ellipse'
+};
+
+const data = [];
+let counter = 100;
+while (counter > 0) {
+  data.push({
+    x: Math.floor(Math.random() * 500),
+    y: Math.floor(Math.random() * 500)
+  });
+  counter--;
+}
+
+danzing(p5, config, data);
