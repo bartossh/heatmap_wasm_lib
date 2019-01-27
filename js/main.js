@@ -183,7 +183,7 @@ const danzing = function(_p5, config, data) {
             _value = Math.floor(_value / 24);
             sketch.fill(240 - this.temps[x][y], 255, 255, 0.5); // HSB
           } else {
-            sketch.fill(240, 255, 255, 0.1); // HSB
+            sketch.fill(240, 255, 255, 0.0); // HSB
           }
           switch(displayToggle) {
             case 'square':
@@ -216,24 +216,24 @@ const danzing = function(_p5, config, data) {
 
 const config = {
   heatSpread: 20,
-  brushRadius: 5,
-  brushIntensity: 20,
+  brushRadius: 3,
+  brushIntensity: 100,
   gridWidth: 200,
   gridHeight: 100,
-  cellSize: 15,
-  cellSpacing: 30,
+  cellSize: 20,
+  cellSpacing: 25,
   canApplyHeat: true,
   isStatic: true,
   imgUrl: 'https://whatcouldicook.com/wp-content/uploads/2018/09/small-office-building-plans-elegant-endearing-simple-floor-plan-design-9-a-house-plans-designing-best-of-small-office-building-plans.jpg',
-  displayToggle: 'ellipse'
+  displayToggle: 'numbers'
 };
 
 const data = [];
 let counter = 100;
 while (counter > 0) {
   data.push({
-    x: Math.floor(Math.random() * 500),
-    y: Math.floor(Math.random() * 500)
+    x: Math.floor(Math.random() * 1000),
+    y: Math.floor(Math.random() * 1000)
   });
   counter--;
 }
