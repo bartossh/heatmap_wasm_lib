@@ -8,20 +8,17 @@ const danzing = function(_p5, config, data) {
         return false;
       }
     }
-    if (config.canApplyHeat === 'undefined' || config.canApplyHeat === 'Null') {
+    if (config.canApplyHeat === 'undefined' || config.canApplyHeat === 'null') {
       return false;
     }
-    if (config.isStatic === 'undefined' || config.isStatic === 'Null') {
+    if (config.isStatic === 'undefined' || config.isStatic === 'null') {
       return false;
     }
     if (!config.heatSpread || !config.brushIntensity || !config.brushRadius || !config.gridWidth ||
       !config.gridHeight || !config.cellSize || !config.cellSpacing) {
       return false;
     }
-    if (!config.isStatic === false && !data && !data.x && !data.y) {
-      return false;
-    }
-    if (!config.isStatic === true && !data && data.length === 0) {
+    if (config.isStatic === 'undefined' || config.isStatic === 'null' || !data || data.length === 0) {
       return false;
     }
     return true;
@@ -63,14 +60,18 @@ const danzing = function(_p5, config, data) {
           heatMap.update();
         });
         sketch.redraw();
-      } else {
-        coordinates = data;
       }
     }
 
     sketch.draw = function() {
-      if(gridWidth != heatMap.width || gridHeight != heatMap.height)
+      if(gridWidth != heatMap.width || gridHeight != heatMap.height) {
         heatMap = new HeatMap(gridWidth, gridHeight);
+        if (!isStatic) {
+          data.forEach(coordDataPoint => {
+            coordinates = coordDataPoint;
+            heatMap.update();
+          });
+        }
 
       sketch.background('rgba(255,255,255, 0.25)');
       sketch.tint(225, 120);
@@ -83,6 +84,7 @@ const danzing = function(_p5, config, data) {
       sketch.fill('rgba(255,255,255, 0.25)');
       sketch.noStroke();
       sketch.strokeWeight(0);
+      }
     }
 
     sketch.windowResized = function() {
