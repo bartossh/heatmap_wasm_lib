@@ -1,26 +1,6 @@
-const danzing = function(_p5, config) {
+const danzing = function(_p5, config, data) {
 
   let heatMap;
-  let coordinates = {
-    x: 0,
-    y: 0
-  };
-  let maxCounted = 25;
-  let counter = 0;
-  let dataPoints = 200;
-
-  let heatSpread = 20;
-  let brushRadius = 5;
-  let brushIntensity = 20;
-  let gridWidth = 200;
-  let gridHeight = 100;
-  let cellSize = 15;
-  let cellSpacing = 30;
-  let canApplyHeat = false;
-  let isStatic = true;
-  let img;
-  let imgUrl ='https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Miami_printable_tourist_attractions_map.jpg/1280px-Miami_printable_tourist_attractions_map.jpg';
-  let displayToggle = 'ellipse';
 
   function isConfigOk(config) {
     if (!!config.displayToggle) {
@@ -38,17 +18,35 @@ const danzing = function(_p5, config) {
       !config.gridHeight || !config.cellSize || !config.cellSpacing) {
       return false;
     }
-    if (!coordinates || !coordinates.x || !coordinates.y) {
+    if (!config.isStatic === false && !data && !data.x && !data.y) {
+      return false;
+    }
+    if (!config.isStatic === true && !data && data.length === 0) {
       return false;
     }
     return true;
   }
 
   const loader = function (sketch) {
-    sketch.preload = function() {
-    img = sketch.loadImage(imgUrl);
+    let heatSpread = config.heatSpread;
+    let brushRadius = config.brushRadius;
+    let brushIntensity = config.brushIntensity;
+    let gridWidth = config.gridHeight;
+    let gridHeight = config.gridHeight;
+    let cellSize = config.cellSize;
+    let cellSpacing = config.cellSpacing;
+    let canApplyHeat = config.canApplyHeat;
+    let isStatic = config.isStatic;
+    let displayToggle = config.displayToggle;
+    let img;
+    let imgUrl;
+    let coordinates;
+    if (config.imgUrl) {
+      imgUrl = config.imgUrl;
+      sketch.preload = function() {
+      img = sketch.loadImage(imgUrl);
+      }
     }
-
     sketch.setup = function () {
       sketch.frameRate(60);
       sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
@@ -57,19 +55,14 @@ const danzing = function(_p5, config) {
 
       heatMap = new HeatMap(gridWidth, gridHeight);
       if (isStatic) {
-        brushIntensity = sketch.random(60, 150);
-        cellSize = 15;
-        cellSpacing = 15;
         sketch.noLoop();
-        while (dataPoints > 0) {
-          coordinates = {
-            x: Math.floor(sketch.random(this.width)),
-            y: Math.floor(sketch.random(this.height))
-          };
+        data.forEach(coordDataPoint => {
+          coordinates = coordDataPoint;
           heatMap.update();
-          dataPoints--;
-        }
+        });
         sketch.redraw();
+      } else {
+        coordinates = data;
       }
     }
 
@@ -219,10 +212,10 @@ const danzing = function(_p5, config) {
   if (_p5 && isConfigOk(config)) {
     const five = new _p5(loader);
   } else {
-    if (_p5) {
-      throw "Wrong configuration passed."
+    if (!!_p5 && !!_p5.Color && !!_p5.Image) {
+      throw "Wrongly set configuration or configuration not available.";
     } else {
-      throw "p5* library not available in current scope."
+      throw "p5* library not available in current scope or incompatible version used, use p5.js version 0.7.3";
     }
   }
 }
