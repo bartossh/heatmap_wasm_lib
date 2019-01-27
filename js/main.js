@@ -11,14 +11,11 @@ const danzing = function(_p5, config, data) {
     if (config.canApplyHeat === 'undefined' || config.canApplyHeat === 'null') {
       return false;
     }
-    if (config.isStatic === 'undefined' || config.isStatic === 'null') {
-      return false;
-    }
     if (!config.heatSpread || !config.brushIntensity || !config.brushRadius || !config.gridWidth ||
       !config.gridHeight || !config.cellSize || !config.cellSpacing) {
       return false;
     }
-    if (config.isStatic === 'undefined' || config.isStatic === 'null' || !data || data.length === 0) {
+    if (config.isStatic === 'undefined' || config.isStatic === 'null') {
       return false;
     }
     return true;
@@ -46,7 +43,11 @@ const danzing = function(_p5, config, data) {
     }
     sketch.setup = function () {
       sketch.frameRate(60);
-      sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
+      if (!!config.imgUrl) {
+        sketch.createCanvas(sketch.windowWidth, sketch.windowHeight);
+      } else {
+        sketch.createCanvas(sketch.windowWidth, sketch.windowHeight, sketch.WEBGL);
+      }
       sketch.colorMode(sketch.HSB);
       sketch.textAlign(sketch.CENTER);
       sketch.noStroke();
@@ -66,25 +67,27 @@ const danzing = function(_p5, config, data) {
     sketch.draw = function() {
       if(gridWidth != heatMap.width || gridHeight != heatMap.height) {
         heatMap = new HeatMap(gridWidth, gridHeight);
-        if (!isStatic) {
-          data.forEach(coordDataPoint => {
-            coordinates = coordDataPoint;
+      }
+      if (!isStatic) {
+        canApplyHeat = false;
+        if (data.length > 0) {
+          canApplyHeat = true;
+            coordinates = data.shift();
             heatMap.update();
-          });
         }
-
-      sketch.background('rgba(255,255,255, 0.25)');
-      sketch.tint(225, 120);
-      if (!!img) {
-        sketch.image(img, 0, 0);
       }
-      heatMap.update();
-      heatMap.display();
 
-      sketch.fill('rgba(255,255,255, 0.25)');
-      sketch.noStroke();
-      sketch.strokeWeight(0);
-      }
+    sketch.background('rgba(255,255,255, 0.25)');
+    sketch.tint(225, 120);
+    if (!!img) {
+      sketch.image(img, 0, 0);
+    }
+    heatMap.update();
+    heatMap.display();
+
+    sketch.fill('rgba(255,255,255, 0.25)');
+    sketch.noStroke();
+    sketch.strokeWeight(0);
     }
 
     sketch.windowResized = function() {
@@ -181,10 +184,11 @@ const danzing = function(_p5, config, data) {
       for(let x = 0; x < this.width; x++) {
         for(let y = 0; y < this.height; y++) {
           let _value = this.temps[x][y];
-          if (_value != 0) {
+          if (_value !== 0 && displayToggle !== 'circle') {
             _value = Math.floor(_value / 24);
-            sketch.fill(240 - this.temps[x][y], 255, 255, 0.5); // HSB
+            sketch.fill(240 - _value, 255, 255, 0.5); // HSB
           } else {
+            sketch.stroke(240, 255, 255, 0.0); // HSB
             sketch.fill(240, 255, 255, 0.0); // HSB
           }
           switch(displayToggle) {
@@ -198,7 +202,14 @@ const danzing = function(_p5, config, data) {
               sketch.text(_value, x * cellSpacing + this.startX, y * cellSpacing + this.startY, cellSize);
               break;
             case 'ellipse':
+              sketch.noStroke();
               sketch.ellipse(x * cellSpacing + this.startX, y * cellSpacing + this.startY, cellSize, cellSize);
+              break;
+            case 'circle':
+              if (_value != 0) {
+                sketch.stroke(240 - _value, 255, 255, 0.5);
+                sketch.circle(x * cellSpacing + this.startX, y * cellSpacing + this.startY, cellSize / 2);
+              }
               break;
           }
         }
@@ -217,20 +228,22 @@ const danzing = function(_p5, config, data) {
 }
 
 const config = {
-  heatSpread: 20,
+  heatSpread: 30,
   brushRadius: 3,
-  brushIntensity: 100,
+  brushIntensity: 60,
   gridWidth: 200,
   gridHeight: 100,
   cellSize: 20,
   cellSpacing: 25,
   canApplyHeat: true,
-  isStatic: true,
+  isStatic: false,
   imgUrl: 'https://whatcouldicook.com/wp-content/uploads/2018/09/small-office-building-plans-elegant-endearing-simple-floor-plan-design-9-a-house-plans-designing-best-of-small-office-building-plans.jpg',
-  displayToggle: 'numbers'
+  displayToggle: 'circle'
 };
 
+
 const data = [];
+// test static
 let counter = 100;
 while (counter > 0) {
   data.push({
@@ -239,5 +252,23 @@ while (counter > 0) {
   });
   counter--;
 }
+
+// test dynamic
+function looper(data) {
+  setTimeout(data => {
+    console.log(data);
+    for (let x = 0; x < 5; x++) {
+      const coords = {
+        x: Math.floor(Math.random() * 1000),
+        y: Math.floor(Math.random() * 1000)
+      };
+      data.push(coords);
+    }
+    looper(data);
+  }, 500);
+}
+
+looper(data);
+
 
 danzing(p5, config, data);
