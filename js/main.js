@@ -188,7 +188,6 @@ const danzing = function(_p5, config, data) {
         for(let y = 0; y < this.height; y++) {
           let _value = this.temps[x][y];
           if (_value !== 0 && displayToggle !== 'circle') {
-            _value = Math.floor(_value / 24);
             sketch.fill(240 - _value, 255, 255, 0.5); // HSB
           } else {
             sketch.stroke(240, 255, 255, 0.0); // HSB
@@ -202,10 +201,10 @@ const danzing = function(_p5, config, data) {
               sketch.rect(x * cellSpacing + this.startX, y * cellSpacing + this.startY, cellSize, cellSize,  2);
               break;
             case 'numbers':
-              sketch.text(_value, x * cellSpacing + this.startX, y * cellSpacing + this.startY, cellSize);
+              let texValue = Math.floor(_value / 24);
+              sketch.text(texValue, x * cellSpacing + this.startX, y * cellSpacing + this.startY, cellSize);
               break;
             case 'ellipse':
-              sketch.noStroke();
               sketch.ellipse(x * cellSpacing + this.startX, y * cellSpacing + this.startY, cellSize, cellSize);
               break;
             case 'circle':
@@ -231,17 +230,17 @@ const danzing = function(_p5, config, data) {
 }
 
 const config = {
-  heatSpread: 30,
-  brushRadius: 3,
-  brushIntensity: 60,
+  heatSpread: 40,
+  brushRadius: 2,
+  brushIntensity: 140,
   gridWidth: 200,
   gridHeight: 100,
-  cellSize: 20,
+  cellSize: 25,
   cellSpacing: 25,
   canApplyHeat: true,
   isStatic: true,
   imgUrl: 'https://whatcouldicook.com/wp-content/uploads/2018/09/small-office-building-plans-elegant-endearing-simple-floor-plan-design-9-a-house-plans-designing-best-of-small-office-building-plans.jpg',
-  displayToggle: 'circle'
+  displayToggle: 'ellipse'
 };
 
 
