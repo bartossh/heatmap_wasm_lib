@@ -72,9 +72,12 @@ const danzing = function(_p5, config, data) {
         canApplyHeat = false;
         if (data.length > 0) {
           canApplyHeat = true;
-            coordinates = data.shift();
-            heatMap.update();
+          coordinates = data.shift();
+          if (data.length === 0) { // avoiding GB to destroy reference
+            data = [];
+          }
         }
+        heatMap.update();
       }
 
     sketch.background('rgba(255,255,255, 0.25)');
@@ -236,7 +239,7 @@ const config = {
   cellSize: 20,
   cellSpacing: 25,
   canApplyHeat: true,
-  isStatic: false,
+  isStatic: true,
   imgUrl: 'https://whatcouldicook.com/wp-content/uploads/2018/09/small-office-building-plans-elegant-endearing-simple-floor-plan-design-9-a-house-plans-designing-best-of-small-office-building-plans.jpg',
   displayToggle: 'circle'
 };
@@ -254,21 +257,21 @@ while (counter > 0) {
 }
 
 // test dynamic
-function looper(data) {
-  setTimeout(data => {
-    console.log(data);
-    for (let x = 0; x < 5; x++) {
-      const coords = {
-        x: Math.floor(Math.random() * 1000),
-        y: Math.floor(Math.random() * 1000)
-      };
-      data.push(coords);
-    }
-    looper(data);
-  }, 500);
-}
+// function looper(data) {
+//   setTimeout(data => {
+//     console.log(data);
+//     for (let x = 0; x < 5; x++) {
+//       const coords = {
+//         x: Math.floor(Math.random() * 1000),
+//         y: Math.floor(Math.random() * 1000)
+//       };
+//       data.push(coords);
+//     }
+//     looper(data);
+//   }, 500);
+// }
 
-looper(data);
+// looper(data);
 
 
 danzing(p5, config, data);
