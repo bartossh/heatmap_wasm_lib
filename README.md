@@ -1,3 +1,8 @@
 
-# heatmap_p5_js
-Heat Map on canvas based on p5*js engine.
+# HEAT MAP
+
+Heat map data visualization.
+
+This lib uses wasm and p5 library to draw on canvas.
+
+

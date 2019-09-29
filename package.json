@@ -1,0 +1,33 @@
+{
+  "name": "heatmap_wasm_lib",
+  "version": "1.0.0",
+  "description": "Heat Map on canvas based on p5*js engine.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode=production",
+    "watch": "webpack --mode=development --watch",
+    "dev": "webpack-dev-server --color"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bartoshko/heatmap_wasm_lib.git"
+  },
+  "author": "Bartosz Lenart",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bartoshko/heatmap_wasm_lib/issues"
+  },
+  "homepage": "https://github.com/Bartoshko/heatmap_wasm_lib#readme",
+  "devDependencies": {
+    "ts-loader": "^6.2.0",
+    "typescript": "^3.6.3",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.1"
+  },
+  "dependencies": {
+    "@types/p5": "^0.9.0",
+    "p5": "^0.9.0"
+  }
+}
