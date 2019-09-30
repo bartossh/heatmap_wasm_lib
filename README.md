@@ -10,11 +10,11 @@ This library is steel in development process...
 
 1. Install dependencies: `$ npm i` 
 
-2. Run development server: `$ npm run dev`
+2. Run development server: `$ npm run dev` open `localhost:8080` in the browser
 
-3. Build in watch mode: `$ npm run watch`
+3. (optional) Build in watch mode: `$ npm run watch`
 
-4. Build for prod `$ npm run prod`
+4. (optional) Build for prod `$ npm run prod`
 
 ## TODO:
 
