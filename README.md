@@ -4,27 +4,17 @@ Heat map library.
 
 ## Development
 
-This library is steel at development process...
+This library is steel in development process...
 
-0. Software needed: 
+0. You need `nodejs` and `npm` installed.
 
-You need `nodejs` and `npm` installed.
+1. Install dependencies: `$ npm i` 
 
-1. Install dependencies: 
+2. Run development server: `$ npm run dev`
 
-Run `npm i` in project folder
+3. Build in watch mode: `$ npm run watch`
 
-2. Run development server:
-
-Run `npm run dev`
-
-3. Build in watch mode
-
-Run `npm run watch`
-
-4. Build for prod
-
-Run `npm run prod`
+4. Build for prod `$ npm run prod`
 
 ## TODO:
 
