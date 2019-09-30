@@ -12,6 +12,6 @@ export const heatMapCanvasConfiguration = {
   displayToggle: HeatDisplay.ELLIPSE,
   width: 900,
   height: 900,
-  imgUrl: '', // set in if img is present
+  imgUrl: 'https://thumbs.dreamstime.com/b/london-city-london-street-view-uk-april-aerial-office-buildings-roads-transport-people-crossing-junction-64711114.jpg', // set in if img is present
   parentId: 'heatmap-sketch' // id of p5js canvas parent in DOM
 };
