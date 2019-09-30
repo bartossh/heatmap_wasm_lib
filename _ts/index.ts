@@ -9,10 +9,13 @@ class App {
 	private appElement: HTMLElement;
 	private canvasDivElement: HTMLElement;
 	private heatmap: HeatMapCanvas;
+	private heatDisplays: HeatDisplay[];
+	private counter: number = 0;
 
 	constructor() {
 		this.initialize();
 		this.handleMouseEvent();
+		this.heatDisplays = [HeatDisplay.CIRCLE, HeatDisplay.ELLIPSE, HeatDisplay.ROUNDED, HeatDisplay.SQUARE, HeatDisplay.TEXT];
 	}
 
 	private initialize() {
@@ -28,7 +31,7 @@ class App {
 
 	private handleMouseEvent() {
 		const canvasElement = document.getElementById('heatmap-sketch');
-		canvasElement.addEventListener('mousemove', (ev: MouseEvent) => {
+		canvasElement.addEventListener('mousemove', (ev: MouseEvent): void => {
 			const heatPoint: HeatMapGradientPoint = {
 				x: Math.floor(ev.clientX),
 				y: Math.floor(ev.clientY),
@@ -36,9 +39,14 @@ class App {
 			};
 			this.heatmap.pushCoordinates(heatPoint);
 		});
+		canvasElement.addEventListener('mousedown', (_: MouseEvent): void => {
+			if (this.counter > this.heatDisplays.length) {
+				this.counter = 0;
+			}
+			heatMapCanvasConfiguration.displayToggle = this.heatDisplays[this.counter];
+			this.counter++
+		});
 	}
-
-
 }
 
 const app = new App();

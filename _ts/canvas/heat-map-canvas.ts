@@ -48,7 +48,6 @@ export class HeatMapCanvas {
         // this is for pushing coordinates while operating on dynamic heat map
         // heat map will apply heat automatically
         if (!this.config.isStatic) {
-            console.log('push', coordinates);
             this.data.push(coordinates);
         }
     }
@@ -151,7 +150,6 @@ export class HeatMapCanvas {
         if (!!coordinates) {
             this.recalculateDistributionBasedOnCoordinates(coordinates);
         }
-        console.log(sketch.width, sketch.height)
         this.start.x = (sketch.width - ((this.width - 1) * this.config.cellSpacing)) / 2;
         this.start.y = (sketch.height - ((this.height - 1) * this.config.cellSpacing)) / 2;
         for (let x = 0; x < this.width; x++) {
