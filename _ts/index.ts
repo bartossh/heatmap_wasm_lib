@@ -2,6 +2,7 @@ import {heatMapCanvasConfiguration} from './canvas/heatMapCanvas-config';
 import {HeatMapCanvasConfig, HeatMapCanvas, HeatMapGradientPoint, Point, HeatDisplay} from './canvas/heat-map-canvas';
 // export {heatMapCanvasConfiguration, HeatMapGradientPoint, Point, HeatMapCanvasConfig, HeatMapCanvas, HeatDisplay};
 
+
 // This class is in purpose of testing Heat Map Lib canvas.
 class App {
 

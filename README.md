@@ -2,7 +2,7 @@
 
 Heat map library.
 
-## Development
+## Development TypeScript (JavaScript)
 
 This library is steel in development process...
 
@@ -15,6 +15,14 @@ This library is steel in development process...
 3. (optional) Build in watch mode: `$ npm run watch`
 
 4. (optional) Build for prod `$ npm run prod`
+
+## Development Rust
+
+0. Install rust: [Rust installation](https://www.rust-lang.org/tools/install)
+
+1. Install wasm-pack [Wasm-pack installation](https://rustwasm.github.io/wasm-pack/installer/)
+
+2. Build wasm-pack `wasm-pack build`
 
 ## TODO:
 

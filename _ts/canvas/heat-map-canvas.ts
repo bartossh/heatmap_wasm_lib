@@ -19,18 +19,24 @@ export class HeatMapCanvas {
     private height: number = 0;
     private colorGrid: GridMatrix = new GridMatrix();
     private copyColorGrid: GridMatrix = new GridMatrix();
+    private heatMapGrid: any;
     private start: Point = {x: 0, y: 0};
     private canApplyHeat = false;
     private heatSpread = 0;
     private brushIntensity = 0;
     private brushRadius = 0;
+    private wasm: any; // it is wasm module and don't have a type
 
     constructor(private config: HeatMapCanvasConfig, private data: HeatMapGradientPoint[]) {
-        if (HeatMapCanvas.isConfigOk(config)) {
-            const pFive = new p5(this.loader.bind(this));
-        } else {
-            throw Error('Wrongly set configuration or configuration not available.');
-        }
+        // async load all chunks of wasm
+        import("../../pkg/heatmap_wasm_lib").then(wasm => {
+            this.wasm = wasm;
+            if (HeatMapCanvas.isConfigOk(config)) {
+                const pFive = new p5(this.loader.bind(this));
+            } else {
+                throw Error('Wrongly set configuration or configuration not available.');
+            }
+        });
     }
 
     private static isConfigOk(configuration: HeatMapCanvasConfig) {
@@ -53,6 +59,9 @@ export class HeatMapCanvas {
     }
 
     private createGrid(): void {
+        this.heatMapGrid = this.wasm.HeatMapGread.new(1, 2);
+        this.heatMapGrid.test_js_call((n: number): void => console.log(n), 12312);
+
         // set this way to not change grid with every update when config.isStatic = true
         // specially useful while operating in dynamic mode
         this.width = this.config.gridWidth;
@@ -328,6 +337,8 @@ export class HeatMapCanvas {
                         if (colorGridValue !== 0) {
                             this.drawCircle(sketch, coordinates, this.start, colorGridValue);
                         }
+                        break;
+                    default:
                         break;
                 }
             }

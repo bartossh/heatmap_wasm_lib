@@ -1,0 +1,26 @@
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+}
+
+extern crate nalgebra as na;
+
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsValue;
+
+// #[wasm_bindgen]
+// extern {
+    
+// }
+
+#[wasm_bindgen]
+pub struct G
+
+// #[wasm_bindgen]
+// pub fn create_grid(width: u32, height: u32) -> Result<JsValue, JsValue> {
+//     let js_result: JsValue = JsValue::from_str(&format!("{} {}", &width, &height));
+//     Ok(js_result) 
+// }
