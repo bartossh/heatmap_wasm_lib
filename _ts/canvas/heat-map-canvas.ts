@@ -60,7 +60,7 @@ export class HeatMapCanvas {
 
     private createGrid(): void {
         this.heatMapGrid = this.wasm.HeatMapGread.new(1, 2);
-        this.heatMapGrid.test_js_call((n: number): void => console.log(n), 12312);
+        this.heatMapGrid.test_js_call((n: number): void => console.log(n), 999999);
 
         // set this way to not change grid with every update when config.isStatic = true
         // specially useful while operating in dynamic mode
