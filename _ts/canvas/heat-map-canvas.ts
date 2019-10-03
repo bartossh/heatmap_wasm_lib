@@ -58,9 +58,9 @@ export class HeatMapCanvas {
         }
     }
 
-    private createGrid(): void {
+    private createGrid(sketch: p5): void {
         this.heatMapGrid = this.wasm.HeatMapGread.new(1, 2);
-        this.heatMapGrid.test_js_call((n: number): void => console.log(n), 999999);
+        this.heatMapGrid.test_js_call(sketch.round, 1.522);
 
         // set this way to not change grid with every update when config.isStatic = true
         // specially useful while operating in dynamic mode
@@ -93,7 +93,7 @@ export class HeatMapCanvas {
             sketch.textAlign(sketch.CENTER);
             sketch.noStroke();
             sketch.strokeWeight(0);
-            this.createGrid();
+            this.createGrid(sketch);
             if (this.config.isStatic) {
                 sketch.noLoop();
                 this.canApplyHeat = true;
@@ -119,7 +119,7 @@ export class HeatMapCanvas {
         this.sketchSetup(sketch);
         sketch.draw = () => {
             if (this.config.gridWidth !== this.width || this.config.gridHeight !== this.height) {
-                this.createGrid();
+                this.createGrid(sketch);
             }
             if (!this.config.isStatic) {
                 // this is run by p5 in loop with this.frameRate speed and tor each frame takes all coordinates and updates
@@ -143,7 +143,7 @@ export class HeatMapCanvas {
             }
             this.canApplyHeat = false;
             this.update(sketch);
-            this.display(sketch);
+            this.display(sketch); // todo: remove sketch passed as argument as this not needs it in the future
             sketch.fill('rgba(255,255,255, 0.25)');
             sketch.noStroke();
             sketch.strokeWeight(0);

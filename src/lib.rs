@@ -52,7 +52,11 @@ impl HeatMapGread {
         self.matrix_copy = self.matrix.clone_owned();
     }
 
-    pub fn test_js_call(&self, callback: &js_sys::Function, num: u32) {
-        callback.call1(&JsValue::null(), &JsValue::from_f64(num as f64)).unwrap();
+    pub fn update(&mut self, x: u32, y: u32) {
+        // todo: implement update here
+    }
+
+    pub fn test_js_call(&self, callback: &js_sys::Function, num: f64) {
+         console_log!("{:?}", callback.call1(&JsValue::null(), &JsValue::from_f64(num)).unwrap());
     }
 }
