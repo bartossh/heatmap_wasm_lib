@@ -15,6 +15,7 @@ export class HeatMapCanvas {
     private static UPPER_TINT = 225;
     private static LOWER_TINT = 120;
     private static DYNAMIC_MODE_FRAME_RATE = 60;
+    private recalculateCanvasCoordinateSystem: boolean = false;
     private width: number = 0;
     private height: number = 0;
     private colorGrid: GridMatrix = new GridMatrix();
@@ -58,9 +59,18 @@ export class HeatMapCanvas {
         }
     }
 
+    enableRecalulatingCoordinateSystemPosition() {
+        this.recalculateCanvasCoordinateSystem = true;
+    }
+
+    disableRecalulatingCoordinateSystemPosition() {
+        this.recalculateCanvasCoordinateSystem = false;
+    }
+
     private createGrid(sketch: p5): void {
-        this.heatMapGrid = this.wasm.HeatMapGread.new(1, 2);
+        this.heatMapGrid = this.wasm.HeatMapGread.new(10, 10, 2, 4, 5, 0, 0);
         this.heatMapGrid.test_js_call(sketch.round, 1.522);
+        this.heatMapGrid.update(1, 2, 6, true);
 
         // set this way to not change grid with every update when config.isStatic = true
         // specially useful while operating in dynamic mode
@@ -159,8 +169,10 @@ export class HeatMapCanvas {
         if (!!coordinates) {
             this.recalculateDistributionBasedOnCoordinates(coordinates);
         }
-        this.start.x = (sketch.width - ((this.width - 1) * this.config.cellSpacing)) / 2;
-        this.start.y = (sketch.height - ((this.height - 1) * this.config.cellSpacing)) / 2;
+        if (this.recalculateCanvasCoordinateSystem) {
+            this.start.x = (sketch.width - ((this.width - 1) * this.config.cellSpacing)) / 2;
+            this.start.y = (sketch.height - ((this.height - 1) * this.config.cellSpacing)) / 2;
+        }
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
                 this.applyGradientDissipation(sketch, x, y);
