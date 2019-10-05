@@ -62,21 +62,18 @@ impl HeatMap {
     }
 
 
-    /// Applies given heat point to the HeatMap matrix
+    /// Applies given heat point to HeatMap matrix
     /// 
     /// # Argument
     /// 
     /// * x - x coordinate
     /// * y - y coordinate
     /// * heat - heat value
-    /// * can_apply - is heat point will be applied
+    /// * can_apply - if true heat point will be applied, or omitted otherwise
     ///
     pub fn update(&mut self, x: u32, y: u32, heat: u32, can_apply: bool) {
-        let mut matrix_copy = self.matrix.clone_owned();
-        let _height = &self.matrix.nrows();
-        let _width = &self.matrix.ncols();
-        let mut row = 0;
-        let mut first_row = true;
+        // copy or clone as we are borrowing self.matrix as mutable
+        let _height = self.matrix.nrows() as f64;
         let coordinates: Point2<f64> = Point2::new(x as f64, y as f64);
         let cell_spacing = self.cell_spacing * heat;
         let brush_radius = self.brush_radius * heat;
@@ -84,15 +81,18 @@ impl HeatMap {
         let x_start = self.x_start;
         let y_start = self.y_start;
         let max_saturation = self.max_saturation;
+        // zero row and acknowledge we are going to iterate matrix in row order from the first row to last row
+        let mut row = 0;
+        let mut first_element = true;
         // map received heat point to the matrix grid
-        &self.matrix.iter_mut().enumerate().for_each(|(i, _)| {
-            let column = (i as f64 % *_height as f64) as u32;
-            if column == 0 && !first_row {
+        &self.matrix.iter_mut().enumerate().for_each(|(i, v)| {
+            let column = (i as f64 % _height as f64) as u32;
+            if column == 0 && !first_element {
                 row += 1;
             }
             // cool it down on each update
-            if matrix_copy[i] > 0 {
-                matrix_copy[i] -= 1;
+            if *v > 0 {
+                *v -= 1;
             }
             // distribute heat
             if can_apply {
@@ -100,19 +100,37 @@ impl HeatMap {
                 let distance_from_coordinates = distance(&coordinates, &point); // nalgebra 2D euclidean distance 
                 if distance_from_coordinates < (brush_radius * cell_spacing) as f64 {
                     // map grid by scaling in 2D euclidean plane 
-                    matrix_copy[i] += map_scaled_value(distance_from_coordinates, 0_f64, (brush_radius + cell_spacing) as f64, brush_intensity as f64, 0_f64) as u32;
-                    if matrix_copy[i] > max_saturation {
-                        matrix_copy[i] = max_saturation
+                    *v += map_scaled_value(distance_from_coordinates, 0_f64, (brush_radius + cell_spacing) as f64, brush_intensity as f64, 0_f64) as u32;
+                    if *v > max_saturation {
+                        *v = max_saturation
                     }
                 }
             }
-            first_row = false;
+            // We can activate row counter
+            first_element = false;
         });
-        self.matrix = matrix_copy.clone_owned();
-        console_log!("matrix_copy {:?}", &matrix_copy);
+        console_log!("matrix_copy {:?}", &self.matrix);
     }
 
+    /// Calls passed javascript function on every HeatMam matrix grid point
+    /// 
+    /// # Argument
+    /// 
+    /// * callback - javascript function to be called
+    ///
     pub fn display(&self, callback: js_sys::Function) {
+        // zero row and acknowledge we are going to iterate matrix in row order from the first row to last row
+        let mut row = 0;
+        let mut first_element = true;
+        &self.matrix.iter().enumerate().for_each(|(i, v)| {
+            let column = (i as f64 % self.matrix.nrows() as f64) as u32;
+            if column == 0 && !first_element {
+                row += 1;
+            }
+
+            // We can activate row counter
+            first_element = false;
+        });
     }
 
     pub fn test_js_call(&self, callback: &js_sys::Function, num: f64) {
