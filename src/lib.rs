@@ -8,10 +8,12 @@ mod tests {
 
 extern crate nalgebra as na;
 extern crate js_sys;
+extern crate serde;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 use na::{Matrix, Dynamic, VecStorage, DMatrix, geometry::Point2, distance};
+use serde::{Serialize, Deserialize};
 // #[wasm_bindgen]
 // extern {
     
@@ -29,6 +31,19 @@ macro_rules! console_log {
     // Note that this is using the `log` function imported above during
     // `bare_bones`
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+struct HeatPoint {
+    x: u32,
+    y: u32,
+    heat: u32
+} 
+
+impl HeatPoint {
+    fn new (x: u32, y: u32, heat: u32) -> Self {
+        Self {x, y, heat}
+    }
 }
 
 #[wasm_bindgen]
@@ -60,7 +75,6 @@ impl HeatMap {
         console_log!("Created {} - {}", &width, &height);
         Self {x_start, y_start, matrix, cell_spacing, brush_radius, brush_intensity, max_saturation}
     }
-
 
     /// Applies given heat point to HeatMap matrix
     /// 
@@ -109,16 +123,18 @@ impl HeatMap {
             // We can activate row counter
             first_element = false;
         });
-        console_log!("matrix_copy {:?}", &self.matrix);
+        // console_log!("matrix_copy {:?}", &self.matrix);
     }
 
     /// Calls passed javascript function on every HeatMam matrix grid point
     /// 
     /// # Argument
     /// 
-    /// * callback - javascript function to be called
+    /// * sketch - javascript p5 sketch function
+    /// * fill - javascript fill function
+    /// * draw - javascript draw function
     ///
-    pub fn display(&self, callback: js_sys::Function) {
+    pub fn draw(&self, callback: &js_sys::Function, sketch: &js_sys::Function) {
         // zero row and acknowledge we are going to iterate matrix in row order from the first row to last row
         let mut row = 0;
         let mut first_element = true;
@@ -127,7 +143,17 @@ impl HeatMap {
             if column == 0 && !first_element {
                 row += 1;
             }
-
+            if *v > 0 {
+                // set arguments for js apply function
+                let heat_point = HeatPoint::new(column, row, *v);
+                if let Ok(serialized) = serde_json::to_string(&heat_point) {
+                    if let Err(_) = callback.call2(&JsValue::null(), sketch, &JsValue::from_str(&serialized)) {
+                        console_log!("Error with calling callbacks passed to wasm draw functions");
+                    };
+                } else {
+                    console_log!("Heat point cannot be serialized");
+                };
+            }
             // We can activate row counter
             first_element = false;
         });

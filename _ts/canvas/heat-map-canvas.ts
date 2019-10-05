@@ -14,7 +14,7 @@ export class HeatMapCanvas {
     private static MIL_VALUE = 100;
     private static UPPER_TINT = 225;
     private static LOWER_TINT = 120;
-    private static DYNAMIC_MODE_FRAME_RATE = 60;
+    private static DYNAMIC_MODE_FRAME_RATE = 2;
     private recalculateCanvasCoordinateSystem: boolean = false;
     private width: number = 0;
     private height: number = 0;
@@ -27,6 +27,7 @@ export class HeatMapCanvas {
     private brushRadius = 0;
     private heatMapGrid: any;
     private wasm: any; // it is wasm module and don't have a type
+    dupa = true;
 
     constructor(private config: HeatMapCanvasConfig, private data: HeatMapGradientPoint[]) {
         // async load all chunks of wasm
@@ -68,14 +69,18 @@ export class HeatMapCanvas {
     }
 
     private createGrid(sketch: p5): void {
-        this.heatMapGrid = this.wasm.HeatMapGread.new(0, 0, 13, 13, 2, 8, 7, HeatMapCanvas.MAX_RED_SATURATION);
-        this.heatMapGrid.test_js_call(sketch.round, 1.522);
-        this.heatMapGrid.update(1, 2, 6, true);
 
         // set this way to not change grid with every update when config.isStatic = true
         // specially useful while operating in dynamic mode
         this.width = this.config.gridWidth;
         this.height = this.config.gridHeight;
+        
+        this.heatMapGrid = this.wasm.HeatMap.new(
+                this.start.x, this.start.y, this.width, this.height,
+                this.config.cellSpacing, this.config.brushRadius, this.config.brushIntensity,
+                HeatMapCanvas.MAX_RED_SATURATION
+            );
+        this.heatMapGrid.test_js_call(sketch.round, 1.522);
 
         this.colorGrid = new GridMatrix();
         this.copyColorGrid = new GridMatrix();
@@ -166,22 +171,26 @@ export class HeatMapCanvas {
 
     private update(sketch: p5, coordinates?: HeatMapGradientPoint) {
         this.makeGridCopy();
-        if (!!coordinates) {
-            this.recalculateDistributionBasedOnCoordinates(coordinates);
+        let time_start: number = Date.now();
+        if (!!coordinates && !!this.heatMapGrid) {
+            // this.recalculateDistributionBasedOnCoordinates(coordinates);
+            this.heatMapGrid.update(coordinates.x, coordinates.y, coordinates.heat, true);
+        } else {
+            this.heatMapGrid.update(0, 0, 0, false);
         }
-        if (this.recalculateCanvasCoordinateSystem) {
-            this.start.x = (sketch.width - ((this.width - 1) * this.config.cellSpacing)) / 2;
-            this.start.y = (sketch.height - ((this.height - 1) * this.config.cellSpacing)) / 2;
-        }
-        const coord = !!coordinates ? coordinates : {x: 0, y: 0, heat: 0};
-        // wasm is going to enter there
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y < this.height; y++) {
-                this.applyGradientDissipation(sketch, x, y);
-                this.distributeHeat(sketch, coord, x, y);
-            }
-            this.copyGridLayers();
-        }
+        // if (this.recalculateCanvasCoordinateSystem) {
+        //     this.start.x = (sketch.width - ((this.width - 1) * this.config.cellSpacing)) / 2;
+        //     this.start.y = (sketch.height - ((this.height - 1) * this.config.cellSpacing)) / 2;
+        // }
+        // const coord = !!coordinates ? coordinates : {x: 0, y: 0, heat: 0};
+        // // wasm is going to enter there
+        // for (let x = 0; x < this.width; x++) {
+        //     for (let y = 0; y < this.height; y++) {
+        //         // this.applyGradientDissipation(sketch, x, y);
+        //         this.distributeHeat(sketch, coord, x, y);
+        //     }
+        //     this.copyGridLayers();
+        // }
     }
 
     private makeGridCopy() {
@@ -325,37 +334,46 @@ export class HeatMapCanvas {
         }
     }
 
+    private executeFromWasmArray(wasmArray: any, str: String) {
+        if (this.dupa) {
+            this.dupa = false;
+            console.log(wasmArray, str);
+        }
+        // this.drawHeat(wasmArray[0], wasmArray[1], wasmArray[2], wasmArray[3]);
+    }
+
+    private drawHeat(sketch: p5, x: number, y: number, heat: number) {
+        let colorGridValue = heat;
+        console.log(sketch);
+        // this.setFillHeatColor(sketch, colorGridValue);
+        // const coordinates: Point = {x: Math.abs(x), y: Math.abs(y)};
+        // switch (this.config.displayToggle) {
+        //     case HeatDisplay.SQUARE:
+        //         this.drawRectangleSharpEdges(sketch, coordinates, this.start);
+        //         break;
+        //     case HeatDisplay.ROUNDED:
+        //         this.drawRectangleRounded(sketch, coordinates, this.start);
+        //         break;
+        //     case HeatDisplay.TEXT:
+        //         colorGridValue = Math.floor(colorGridValue / HeatMapCanvas.COLOR_DIVIDER);
+        //         this.addText(sketch, coordinates, this.start, colorGridValue);
+        //         break;
+        //     case HeatDisplay.ELLIPSE:
+        //         this.drawEllipse(sketch, coordinates, this.start);
+        //         break;
+        //     case HeatDisplay.CIRCLE:
+        //         if (colorGridValue !== 0) {
+        //             this.drawCircle(sketch, coordinates, this.start, colorGridValue);
+        //         }
+        //         break;
+        //     default:
+        //         break;
+        // }
+    }
+
     private display(sketch: p5) {
         this.setSketchFill(sketch);
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y < this.height; y++) {
-                let colorGridValue = this.colorGrid.grid[x][y];
-                this.setFillHeatColor(sketch, colorGridValue);
-                const coordinates: Point = {x: x, y: y};
-                switch (this.config.displayToggle) {
-                    case HeatDisplay.SQUARE:
-                        this.drawRectangleSharpEdges(sketch, coordinates, this.start);
-                        break;
-                    case HeatDisplay.ROUNDED:
-                        this.drawRectangleRounded(sketch, coordinates, this.start);
-                        break;
-                    case HeatDisplay.TEXT:
-                        colorGridValue = Math.floor(colorGridValue / HeatMapCanvas.COLOR_DIVIDER);
-                        this.addText(sketch, coordinates, this.start, colorGridValue);
-                        break;
-                    case HeatDisplay.ELLIPSE:
-                        this.drawEllipse(sketch, coordinates, this.start);
-                        break;
-                    case HeatDisplay.CIRCLE:
-                        if (colorGridValue !== 0) {
-                            this.drawCircle(sketch, coordinates, this.start, colorGridValue);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
+        this.heatMapGrid.draw(this.executeFromWasmArray.bind(this), sketch);
     }
 }
 
