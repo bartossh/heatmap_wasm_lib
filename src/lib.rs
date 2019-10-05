@@ -91,12 +91,12 @@ impl HeatMap {
         // copy or clone as we are borrowing self.matrix as mutable
         let _height = self.matrix.nrows() as f64;
         let coordinates: Point2<f64> = Point2::new(x as f64, y as f64);
-        let cell_spacing = self.cell_spacing * heat;
+        let cell_spacing = self.cell_spacing;
         let brush_radius = self.brush_radius * heat;
         let brush_intensity = self.brush_intensity * heat;
+        let max_saturation = self.max_saturation;
         let x_start = self.x_start;
         let y_start = self.y_start;
-        let max_saturation = self.max_saturation;
         // zero row and acknowledge we are going to iterate matrix in row order from the first row to last row
         let mut row = 0;
         let mut first_element = true;

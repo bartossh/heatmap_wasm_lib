@@ -14,10 +14,8 @@ export class HeatMapCanvas {
     private static MIL_VALUE = 100;
     private static UPPER_TINT = 225;
     private static LOWER_TINT = 120;
-    private static DYNAMIC_MODE_FRAME_RATE = 60;
-    private recalculateCanvasCoordinateSystem: boolean = false;
-    private start: Point = {x: 0, y: 0};
-    private canApplyHeat = false;
+    private static DYNAMIC_MODE_FRAME_RATE = 20;
+    private start: Point = {x: 0, y: 0}; // TODO: allow setting dynamically
     private heatSpread = 0;
     private brushIntensity = 0;
     private brushRadius = 0;
@@ -55,14 +53,6 @@ export class HeatMapCanvas {
         }
     }
 
-    enableRecalulatingCoordinateSystemPosition() {
-        this.recalculateCanvasCoordinateSystem = true;
-    }
-
-    disableRecalulatingCoordinateSystemPosition() {
-        this.recalculateCanvasCoordinateSystem = false;
-    }
-
     private createGrid(): void {
         this.heatMapGrid = this.wasm.HeatMap.new(
             this.start.x, this.start.y, this.config.width, this.config.height,
@@ -80,6 +70,7 @@ export class HeatMapCanvas {
             } else {
                 canvasHeat = sketch.createCanvas(this.config.width, this.config.height, sketch.WEBGL);
             }
+            console.log(sketch.width, sketch.height)
             canvasHeat.parent(this.config.parentId);
             sketch.colorMode(sketch.HSB);
             sketch.textAlign(sketch.CENTER);
@@ -88,7 +79,6 @@ export class HeatMapCanvas {
             this.createGrid();
             if (this.config.isStatic) {
                 sketch.noLoop();
-                this.canApplyHeat = true;
                 if (this.data.length > 0) {
                     this.data.forEach(coordDataPoint => {
                         this.update(sketch, coordDataPoint);
@@ -113,7 +103,6 @@ export class HeatMapCanvas {
             if (!this.config.isStatic) {
                 // this is run by p5 in loop with this.frameRate speed and tor each frame takes all coordinates and updates
                 if (this.data.length > 0) {
-                    this.canApplyHeat = true;
                     const coordinates = this.data.shift();
                     if (this.data.length === 0) {
                         // to not let GC destroy reference but this method is from stack overflow
@@ -130,7 +119,6 @@ export class HeatMapCanvas {
             if (!!img) {
                 sketch.image(img, 0, 0);
             }
-            this.canApplyHeat = false;
             this.update(sketch);
             sketch.fill('rgba(255,255,255, 0.25)');
             sketch.noStroke();
@@ -143,7 +131,6 @@ export class HeatMapCanvas {
     }
 
     private update(sketch: p5, coordinates?: HeatMapGradientPoint) {
-        let time_start: number = Date.now();
         if (!this.heatMapGrid) {
             return;
         } else if (!!coordinates) {
