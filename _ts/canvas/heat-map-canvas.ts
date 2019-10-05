@@ -20,12 +20,12 @@ export class HeatMapCanvas {
     private height: number = 0;
     private colorGrid: GridMatrix = new GridMatrix();
     private copyColorGrid: GridMatrix = new GridMatrix();
-    private heatMapGrid: any;
     private start: Point = {x: 0, y: 0};
     private canApplyHeat = false;
     private heatSpread = 0;
     private brushIntensity = 0;
     private brushRadius = 0;
+    private heatMapGrid: any;
     private wasm: any; // it is wasm module and don't have a type
 
     constructor(private config: HeatMapCanvasConfig, private data: HeatMapGradientPoint[]) {
@@ -68,7 +68,7 @@ export class HeatMapCanvas {
     }
 
     private createGrid(sketch: p5): void {
-        this.heatMapGrid = this.wasm.HeatMapGread.new(10, 10, 2, 4, 5, 0, 0);
+        this.heatMapGrid = this.wasm.HeatMapGread.new(0, 0, 13, 13, 2, 8, 7, HeatMapCanvas.MAX_RED_SATURATION);
         this.heatMapGrid.test_js_call(sketch.round, 1.522);
         this.heatMapGrid.update(1, 2, 6, true);
 
@@ -173,10 +173,11 @@ export class HeatMapCanvas {
             this.start.x = (sketch.width - ((this.width - 1) * this.config.cellSpacing)) / 2;
             this.start.y = (sketch.height - ((this.height - 1) * this.config.cellSpacing)) / 2;
         }
+        const coord = !!coordinates ? coordinates : {x: 0, y: 0, heat: 0};
+        // wasm is going to enter there
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
                 this.applyGradientDissipation(sketch, x, y);
-                const coord = !!coordinates ? coordinates : {x: 0, y: 0, heat: 0};
                 this.distributeHeat(sketch, coord, x, y);
             }
             this.copyGridLayers();
@@ -211,18 +212,18 @@ export class HeatMapCanvas {
 
     private applyGradientDissipation(sketch: p5, x: number, y: number) {
         this.copyColorGrid.grid[x][y]--;
-        if (this.colorGrid.grid[x][y] > 0) {
-            const gradientDissipation = new GridMatrix();
-            this.applyDissipation(gradientDissipation, x, y);
-            let sum = 0;
-            for (let i = 0; i < gradientDissipation.grid.length; i++) {
-                sum += this.colorGrid.grid[gradientDissipation.grid[i][0]][gradientDissipation.grid[i][1]];
-            }
-            const averageDissipation = sketch.round(sum / gradientDissipation.grid.length);
-            while (gradientDissipation.hasLength() && this.copyColorGrid.isAboveAverage(averageDissipation, x, y)) {
-                this.applyHeatToGradient(sketch, gradientDissipation, x, y);
-            }
-        }
+        // if (this.colorGrid.grid[x][y] > 0) {
+        //     const gradientDissipation = new GridMatrix();
+        //     this.applyDissipation(gradientDissipation, x, y);
+        //     let sum = 0;
+        //     for (let i = 0; i < gradientDissipation.grid.length; i++) {
+        //         sum += this.colorGrid.grid[gradientDissipation.grid[i][0]][gradientDissipation.grid[i][1]];
+        //     }
+        //     const averageDissipation = sketch.round(sum / gradientDissipation.grid.length);
+        //     while (gradientDissipation.hasLength() && this.copyColorGrid.isAboveAverage(averageDissipation, x, y)) {
+        //         this.applyHeatToGradient(sketch, gradientDissipation, x, y);
+        //     }
+        // }
     }
 
     private applyDissipation(gradientDissipation: GridMatrix, x: number, y: number) {
