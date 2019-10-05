@@ -20,3 +20,6 @@ Cargo.lock
 
 #wasm-pack build
 /pkg
+
+#sublime rust plug in specific
+**/*tmp*

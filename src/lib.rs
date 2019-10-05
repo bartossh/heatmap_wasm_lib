@@ -139,5 +139,5 @@ impl HeatMap {
 }
 
 fn map_scaled_value(value: f64, _from_start: f64, _from_finnish: f64, _to_start: f64, _to_finnish: f64) -> f64 {
-    _to_start + (value * (_to_finnish - _to_start) / (_from_finnish - _to_start)).abs()
+    _to_start + (value * (_to_finnish - _to_start) / (_from_finnish - _from_start)).abs()
 }
