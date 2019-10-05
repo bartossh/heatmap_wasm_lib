@@ -10,6 +10,8 @@ extern crate nalgebra as na;
 extern crate js_sys;
 extern crate serde;
 
+use core::cmp::max;
+use std::cmp::min;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 use na::{Matrix, Dynamic, VecStorage, DMatrix, geometry::Point2, distance};
@@ -114,7 +116,7 @@ impl HeatMap {
                 let distance_from_coordinates = distance(&coordinates, &point); // nalgebra 2D euclidean distance 
                 if distance_from_coordinates < (brush_radius * cell_spacing) as f64 {
                     // map grid by scaling in 2D euclidean plane 
-                    *v += map_scaled_value(distance_from_coordinates, 0_f64, (brush_radius + cell_spacing) as f64, brush_intensity as f64, 0_f64) as u32;
+                    *v += map_scaled_value(distance_from_coordinates, 0_f64, (brush_radius + cell_spacing) as f64, brush_intensity as f64, 0_f64, false) as u32;
                     if *v > max_saturation {
                         *v = max_saturation
                     }
@@ -123,7 +125,6 @@ impl HeatMap {
             // We can activate row counter
             first_element = false;
         });
-        // console_log!("matrix_copy {:?}", &self.matrix);
     }
 
     /// Calls passed javascript function on every HeatMam matrix grid point
@@ -164,6 +165,37 @@ impl HeatMap {
     }
 }
 
-fn map_scaled_value(value: f64, _from_start: f64, _from_finnish: f64, _to_start: f64, _to_finnish: f64) -> f64 {
-    _to_start + (value * (_to_finnish - _to_start) / (_from_finnish - _from_start)).abs()
+
+/// Re-maps a number from one range to another
+/// # Arguments: 
+/// * value - number to remap
+/// * start1 - lower bound of the value's current range
+/// * stop1 - upper bound of the value's current range
+/// * start2 - lower bound of the value's target range
+/// * stop2 - upper bound of the value's target range
+/// * within_bounds - constrain the value to the newly mapped range
+/// 
+/// # Returns: re-mapped value to new bound
+///
+fn map_scaled_value(value: f64, start1: f64, stop1: f64, start2: f64, stop2: f64, within_bounds: bool) -> f64 {
+    let newval = (value - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+    if !within_bounds {
+        return newval;
+    }
+    if start2 < stop2 {
+        return constrain(newval, start2, stop2);
+    }
+    constrain(newval, stop2, start2)
+}
+
+/// Constrains a value between a minimum and maximum value
+///
+/// # Arguments:
+/// * value - number to constrain
+/// * bound1 - minimum limit
+/// * bound2 - maximum limit
+/// # Returns: constrained number
+///
+fn constrain(value: f64, bound1: f64, bound2: f64) -> f64 {
+    max(min(value as u64, bound2 as u64), bound1 as u64) as f64
 }
