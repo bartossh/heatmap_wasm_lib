@@ -40,13 +40,13 @@ class App {
 			};
 			this.heatmap.pushCoordinates(heatPoint);
 		});
-		canvasElement.addEventListener('mousedown', (_: MouseEvent): void => {
-			if (this.counter > this.heatDisplays.length) {
-				this.counter = 0;
-			}
-			heatMapCanvasConfiguration.displayToggle = this.heatDisplays[this.counter];
-			this.counter++
-		});
+		// canvasElement.addEventListener('mousedown', (_: MouseEvent): void => {
+		// 	if (this.counter > this.heatDisplays.length) {
+		// 		this.counter = 0;
+		// 	}
+		// 	heatMapCanvasConfiguration.displayToggle = this.heatDisplays[this.counter];
+		// 	this.counter++
+		// });
 	}
 }
 

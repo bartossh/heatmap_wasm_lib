@@ -14,7 +14,7 @@ export class HeatMapCanvas {
     private static MIL_VALUE = 100;
     private static UPPER_TINT = 225;
     private static LOWER_TINT = 120;
-    private static DYNAMIC_MODE_FRAME_RATE = 20;
+    private static DYNAMIC_MODE_FRAME_RATE = 60;
     private start: Point = {x: 0, y: 0}; // TODO: allow setting dynamically
     private heatSpread = 0;
     private brushIntensity = 0;
