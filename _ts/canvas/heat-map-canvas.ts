@@ -20,7 +20,6 @@
 ** - Add 'static no historical' mode (order of applying heat point has no impact over heat distribution)
 */
 
-import {GridMatrix} from './grid-matrix';
 import * as p5 from 'p5';
 
 export class HeatMapCanvas {
