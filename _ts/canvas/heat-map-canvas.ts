@@ -1,3 +1,25 @@
+/* This library depends on wasm (web assembly) worker to calculate heat map grid
+** and apply drawing function on each heat map matrix point to update canvas (draw heat distribution).
+** Wasm worker greatly speeds up mapping given heat over heat map grid (2D matrix). What allows
+** drawing on the canvas on the go, and setting large canvas size than in version without wasm worker.
+**
+** IMPORTANT NOTE: Heat is applied to the grid in historical order.
+**                 Having two modes each need separate explanation.
+**                 * Dynamic mode: Simply with each loop (HeatMApCanvas.DYNAMIC_MODE_FRAME_RATE)
+**                 each heat point is cooled down, then if heat point is present it is brushed over the grid.
+**                 Then canvas is updated (heat is being drawn).
+**                 * Static mode: Having an array (list) of heat points (coordinate with heat occurrence 
+**                 and heat values), we are passing it (HeatMapGradientPoint[]) to the HeatMapCanvas when
+**                 instantiating. Heat is mapped over heat map grid in a way, that each next heat point has
+**                 more significant impact over heat distribution. In each step (step equals next heat point applied to the grid)
+**                 heat map cools down each grid point. Older heat points are getting more forgotten in favor of every newly applied one.
+**
+** TODO:
+** - The bottle neck is still drawing function call, so better performance can be achieved
+** with moving drawing logic in to web worker (wasm).
+** - Add 'static no historical' mode (order of applying heat point has no impact over heat distribution)
+*/
+
 import {GridMatrix} from './grid-matrix';
 import * as p5 from 'p5';
 
@@ -10,15 +32,10 @@ export class HeatMapCanvas {
     private static SQUARE_EDGE = 2;
     private static UPPER_STROKE_WEIGHT = 2;
     private static LOWER_STROKE_WEIGHT = 1;
-    private static GRID_DIVIDER = 5;
-    private static MIL_VALUE = 100;
     private static UPPER_TINT = 225;
     private static LOWER_TINT = 120;
     private static DYNAMIC_MODE_FRAME_RATE = 60;
     private start: Point = {x: 0, y: 0}; // TODO: allow setting dynamically
-    private heatSpread = 0;
-    private brushIntensity = 0;
-    private brushRadius = 0;
     private heatMapGrid: any;
     private wasm: any; // it is wasm module and don't have a type
 
@@ -108,9 +125,6 @@ export class HeatMapCanvas {
                         // to not let GC destroy reference but this method is from stack overflow
                         this.data = [];
                     }
-                    this.brushIntensity = this.config.brushIntensity;
-                    this.brushRadius = this.config.brushRadius;
-                    this.heatSpread = this.config.heatSpread;
                     this.update(sketch, coordinates);
                 }
             }
@@ -139,17 +153,7 @@ export class HeatMapCanvas {
             this.heatMapGrid.update(0, 0, 0, false);
         }
         this.setSketchFill(sketch);
-        this.heatMapGrid.draw(this.executeFromWasmArray.bind(this), sketch);
-    }
-
-    private recalculateDistributionBasedOnCoordinates(coordinates: HeatMapGradientPoint) {
-        this.brushIntensity = Math.floor(this.config.brushIntensity * coordinates.heat);
-        this.brushRadius = Math.floor(this.config.brushRadius * coordinates.heat);
-        this.heatSpread = Math.floor(this.config.heatSpread * coordinates.heat);
-    }
-
-    private isInHeatDissipationRange(distanceFromCoordinates: number): boolean {
-        return distanceFromCoordinates < this.brushRadius * this.config.cellSpacing;
+        this.heatMapGrid.draw(this.executeFromWasmCallback.bind(this), sketch);
     }
 
     private setSketchFill(sketch: p5) {
@@ -210,7 +214,7 @@ export class HeatMapCanvas {
         }
     }
 
-    private executeFromWasmArray(sketch: p5, wasmJsonString: string) {
+    private executeFromWasmCallback(sketch: p5, wasmJsonString: string) {
         this.drawHeat(sketch ,JSON.parse(wasmJsonString));
     }
 
@@ -245,7 +249,7 @@ export class HeatMapCanvas {
     private display(sketch: p5) {
         this.setSketchFill(sketch);
         if (!!this.heatMapGrid) {
-            this.heatMapGrid.draw(this.executeFromWasmArray.bind(this), sketch);
+            this.heatMapGrid.draw(this.executeFromWasmCallback.bind(this), sketch);
         }
     }
 }

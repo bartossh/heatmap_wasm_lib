@@ -1,3 +1,11 @@
+/// This is web worker that is strictly connected with heat map library.
+/// Heat map calculation of matrix, gradient distribution, and mapping gradient
+/// to canvas depends on this worker. All calculations are single threaded. 
+/// 
+/// TODO: 
+/// - needs unit tests.
+/// - it will be good to draw shapes from this worker, which will better the performance (no need to call js code any more)
+///
 #[cfg(test)]
 mod tests {
     #[test]
@@ -43,6 +51,17 @@ struct HeatPoint {
 } 
 
 impl HeatPoint {
+
+    /// Constructs new HeatPotn instance
+    /// 
+    /// # Arguments:
+    /// 
+    /// * x - x coordinate
+    /// * y - y coordinate
+    /// * heat - value of heat point has from start
+    ///
+    /// # Returns: Self
+    /// 
     fn new (x: u32, y: u32, heat: u32) -> Self {
         Self {x, y, heat}
     }
@@ -62,7 +81,22 @@ pub struct HeatMap {
 
 #[wasm_bindgen]
 impl HeatMap {
-    
+
+    /// Constructs new HeatMap instance
+    /// 
+    /// # Arguments:
+    /// 
+    /// * x_start - grid starting position x coordinate
+    /// * y_start - grid starting position y coordinate
+    /// * width - grid width
+    /// * height - grid height
+    /// * cell_spacing - space between grid points, size of each grid point
+    /// * brush_radius - maximum distance of heat to reach from heat point coordinates
+    /// * brush_intensity - power given for single heat point over each grid point that it is applied on (heat value is multiplied by this value)
+    /// * max_saturatiin - maximum value that heat point can reach (refers to max red color saturation level)
+    ///
+    /// # Returns: Self
+    ///
     pub fn new(
         x_start: u32,
         y_start: u32,
@@ -78,7 +112,7 @@ impl HeatMap {
         Self {x_start, y_start, matrix, cell_spacing, brush_radius, brush_intensity, max_saturation}
     }
 
-    /// Applies given heat point to HeatMap matrix
+    /// Applies given heat point on HeatMap matrix grid points
     /// 
     /// # Argument
     /// 
@@ -106,7 +140,7 @@ impl HeatMap {
             if column == 0 && !first_element {
                 row += 1;
             }
-            // cool it down on each update
+            // cool gradient down on each pass
             if *v > 0 {
                 *v -= 1;
             }
@@ -127,13 +161,12 @@ impl HeatMap {
         });
     }
 
-    /// Calls passed javascript function on every HeatMam matrix grid point
+    /// Calls passed javascript drawing function on every HeatMap matrix grid point with given context (sketch)
     /// 
     /// # Argument
     /// 
-    /// * sketch - javascript p5 sketch function
-    /// * fill - javascript fill function
-    /// * draw - javascript draw function
+    /// * callback - javascript canvas drawing function
+    /// * sketch - javascript function object holding context of canvas to draw on (*p5.js library)
     ///
     pub fn draw(&self, callback: &js_sys::Function, sketch: &js_sys::Function) {
         // zero row and acknowledge we are going to iterate matrix in row order from the first row to last row
@@ -160,6 +193,14 @@ impl HeatMap {
         });
     }
 
+    /// This function simply tests two way bindings between js and wasm 
+    /// it calls js callback function than logs received result in browser console
+    /// This function does not refer to js callback 'this' context, and resets it to null
+    ///
+    /// # Arguments:
+    /// * callback - javascript function to call
+    /// * num - number to pass to given function
+    ///
     pub fn test_js_call(&self, callback: &js_sys::Function, num: f64) {
          console_log!("{:?}", callback.call1(&JsValue::null(), &JsValue::from_f64(num)).unwrap());
     }
@@ -175,7 +216,7 @@ impl HeatMap {
 /// * stop2 - upper bound of the value's target range
 /// * within_bounds - constrain the value to the newly mapped range
 /// 
-/// # Returns: re-mapped value to new bound
+/// # Returns: re-mapped value to new bounds
 ///
 fn map_scaled_value(value: f64, start1: f64, stop1: f64, start2: f64, stop2: f64, within_bounds: bool) -> f64 {
     let newval = (value - start1) / (stop1 - start1) * (stop2 - start2) + start2;
