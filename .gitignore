@@ -23,3 +23,5 @@ Cargo.lock
 
 #sublime rust plug in specific
 **/*tmp*
+
+*.log
