@@ -34,7 +34,7 @@ use web_sys::{CanvasRenderingContext2d, Document, HtmlCanvasElement};
 
 // }
 
-const CANVAS_ALPHA: f64 = 0.2_f64;
+const CANVAS_ALPHA: f64 = 0.004_f64;
 
 #[wasm_bindgen]
 extern "C" {
@@ -119,6 +119,17 @@ struct RGBA {
 }
 
 impl RGBA {
+    /// Constructs new RGBA instance
+    ///
+    /// # Arguments:
+    ///
+    /// * r - red channel value
+    /// * g - green channel value
+    /// * b - blue channel value
+    /// * a - alpha opacity
+    ///
+    /// # Returns: Self
+    ///
     fn new(r: u32, g: u32, b: u32, a: f64) -> Self {
         Self { r, g, b, a }
     }
@@ -135,7 +146,7 @@ impl From<&RGBA> for String {
     fn from(rgba: &RGBA) -> Self {
         format!(
             "rgba({red}, {green}, {blue}, {alpha})",
-            red = rgba.a,
+            red = rgba.r,
             green = rgba.g,
             blue = rgba.b,
             alpha = rgba.a
@@ -155,7 +166,6 @@ pub struct HeatMap {
     brush_radius: u32,
     brush_intensity: u32,
     max_red_saturation: u32,
-    max_color_saturation: u32,
     ctx: CanvasRenderingContext2d,
 }
 
@@ -173,7 +183,6 @@ impl HeatMap {
     /// * brush_radius - maximum distance of heat to reach from heat point coordinates
     /// * brush_intensity - power given for single heat point over each grid point that it is applied on (heat value is multiplied by this value)
     /// * max_red_saturation - maximum value that heat point can reach (refers to max red color saturation level)
-    /// * max_color_saturation - maximum color saturation for each color channel (green and blue in this case)
     /// * element_id - id of canvas element to draw heatmap on
     ///
     /// # Returns: Result of Self, Err<JsValue<String>> message otherwise
@@ -187,7 +196,6 @@ impl HeatMap {
         brush_radius: u32,
         brush_intensity: u32,
         max_red_saturation: u32,
-        max_color_saturation: u32,
         element_id: &str,
     ) -> Result<HeatMap, JsValue> {
         let matrix = DMatrix::from_fn(height as usize, width as usize, |_, _| 0_u32);
@@ -210,7 +218,6 @@ impl HeatMap {
                                     brush_radius,
                                     brush_intensity,
                                     max_red_saturation,
-                                    max_color_saturation,
                                     ctx,
                                 });
                             };
@@ -299,6 +306,7 @@ impl HeatMap {
     pub fn draw(&self) {
         let mut row = 0;
         let mut first_element = true;
+        let color_rgbs_stringified = &String::from(&RGBA::new(255, 255, 255, 0_f64));
         self.ctx
             .clear_rect(0.0, 0.0, self.width.into(), self.height.into());
         &self.matrix.iter().enumerate().for_each(|(i, v)| {
@@ -307,22 +315,31 @@ impl HeatMap {
                 row += 1;
             }
             if *v > 0 {
+                let mut alfa = CANVAS_ALPHA * *v as f64;
+                if alfa < 0.3 {
+                    alfa = 0.3;
+                } else if alfa > 0.8 {
+                    alfa = 0.8;
+                }
                 self.ctx.begin_path();
-                if let Ok(_) = self.ctx.arc(
+                self.ctx.rect(
                     (column * self.cell_spacing + self.x_start).into(),
                     (row * self.cell_spacing + self.y_start).into(),
-                    (*v as u32).into(),
-                    0.0,
-                    2.0 * std::f64::consts::PI,
-                ) {
-                    // todo: find best fast way to calc color heat from rgba
-                    let color_rgba = RGBA::new(self.max_red_saturation + *v, *v, *v, CANVAS_ALPHA);
-                    let js_stringified_rgba = JsValue::from_str(&String::from(&color_rgba));
-                    self.ctx.set_fill_style(&js_stringified_rgba);
-                    self.ctx.set_stroke_style(&js_stringified_rgba);
-                    self.ctx.fill();
-                    self.ctx.stroke();
-                };
+                    self.cell_spacing.into(),
+                    self.cell_spacing.into(),
+                );
+                let color_rgba_fill = RGBA::new(
+                    *v,
+                    (self.max_red_saturation as f64 / 2_f64) as u32 - (*v as f64 / 2_f64) as u32,
+                    self.max_red_saturation - *v,
+                    alfa,
+                );
+                let js_stringified_rgba_stroke = JsValue::from_str(&color_rgbs_stringified);
+                self.ctx
+                    .set_fill_style(&JsValue::from(&String::from(&color_rgba_fill)));
+                self.ctx.set_stroke_style(&js_stringified_rgba_stroke);
+                self.ctx.fill();
+                self.ctx.stroke();
             }
             // We can activate row counter
             first_element = false;

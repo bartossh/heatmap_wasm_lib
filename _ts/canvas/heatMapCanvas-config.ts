@@ -1,7 +1,7 @@
 export const heatMapCanvasConfiguration = {
   heatSpread: 12,
-  brushRadius: 18,
-  brushIntensity: 10,
+  brushRadius: 26,
+  brushIntensity: 22,
   gridWidth: 90, // calculated from cellSpacing but can be set as permanent
   gridHeight: 90, // calculated from cellSpacing but can be set as permanent
   cellSize: 2,

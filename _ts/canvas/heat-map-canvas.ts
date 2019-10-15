@@ -19,8 +19,9 @@
 */
 
 export class HeatMapCanvas {
-    private static MAX_RED_SATURATION = 240;
-    private static MAX_COLOUR_SATURATION = 255;
+    private static MAX_RED_SATURATION = 255;
+    // private static MAX_COLOUR_SATURATION = 255;
+    private static SLEEP_MS = 50;
     private start: Point = {x: 0, y: 0}; // TODO: allow setting dynamically
     private heatMapGrid: any;
     private wasm: any; // it is wasm module and don't have a type
@@ -64,7 +65,7 @@ export class HeatMapCanvas {
         this.heatMapGrid = this.wasm.HeatMap.new(
             this.start.x, this.start.y, this.config.width, this.config.height,
             this.config.cellSpacing, this.config.brushRadius, this.config.brushIntensity,
-            HeatMapCanvas.MAX_RED_SATURATION, HeatMapCanvas.MAX_COLOUR_SATURATION, this.canvasId
+            HeatMapCanvas.MAX_RED_SATURATION, this.canvasId
         );
     }
 
@@ -73,7 +74,7 @@ export class HeatMapCanvas {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
         while (true) {
-            await sleep(50);
+            await sleep(HeatMapCanvas.SLEEP_MS);
             let coordinates = this.data.pop();
             if(!coordinates) {
                 coordinates = {x: 0, y: 0, heat: 0};
