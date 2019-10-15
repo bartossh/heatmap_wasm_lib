@@ -30,7 +30,7 @@ class App {
 
 	private handleMouseEvent() {
 		const canvasElement = document.getElementById('heatmap-sketch');
-		canvasElement.addEventListener('mousedown', (ev: MouseEvent): void => {
+		canvasElement.addEventListener('mousemove', (ev: MouseEvent): void => {
 			const heatPoint: HeatMapGradientPoint = {
 				x: Math.floor(ev.clientX),
 				y: Math.floor(ev.clientY),

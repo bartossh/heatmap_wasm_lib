@@ -21,7 +21,7 @@
 export class HeatMapCanvas {
     private static MAX_RED_SATURATION = 255;
     // private static MAX_COLOUR_SATURATION = 255;
-    private static SLEEP_MS = 50;
+    private static SLEEP_MS = 5;
     private start: Point = {x: 0, y: 0}; // TODO: allow setting dynamically
     private heatMapGrid: any;
     private wasm: any; // it is wasm module and don't have a type
