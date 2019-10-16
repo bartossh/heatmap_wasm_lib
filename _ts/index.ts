@@ -4,6 +4,9 @@ import {HeatMapCanvasConfig, HeatMapCanvas, HeatMapGradientPoint, Point} from '.
 
 
 // This class is in purpose of testing Heat Map Lib canvas.
+// How to play with this:
+// If User move mouse than it collects mouse coordinates and apply them to heat mam. No cooling down
+// If User stops moving mouse than heatmaps is starting to cool down.
 class App {
 
 	private gradinetPoints: HeatMapGradientPoint[] = [];

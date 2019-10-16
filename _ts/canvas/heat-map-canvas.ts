@@ -74,12 +74,17 @@ export class HeatMapCanvas {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
         while (true) {
+            let canApply = true;
+            let canCool = false;
             await sleep(HeatMapCanvas.SLEEP_MS);
             let coordinates = this.data.pop();
             if(!coordinates) {
+                canApply = false;
+                canCool = true;
                 coordinates = {x: 0, y: 0, heat: 0};
             }
-            this.heatMapGrid.update(coordinates.x, coordinates.y, coordinates.heat, true);
+            console.log(canApply, canCool, coordinates);
+            this.heatMapGrid.update(coordinates.x, coordinates.y, coordinates.heat, canApply, canCool);
             this.heatMapGrid.draw();
         }
     }

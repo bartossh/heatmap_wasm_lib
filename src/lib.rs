@@ -35,6 +35,8 @@ use web_sys::{CanvasRenderingContext2d, Document, HtmlCanvasElement};
 // }
 
 const CANVAS_ALPHA: f64 = 0.004_f64;
+const TOP_ALFA_RANGE: f64 = 0.8_f64;
+const BOTTOM_ALFA_RANGE: f64 = 0.3_f64;
 
 #[wasm_bindgen]
 extern "C" {
@@ -251,7 +253,7 @@ impl HeatMap {
     /// * heat - heat value
     /// * can_apply - if true heat point will be applied, or omitted otherwise
     ///
-    pub fn update(&mut self, x: u32, y: u32, heat: u32, can_apply: bool) {
+    pub fn update(&mut self, x: u32, y: u32, heat: u32, can_apply: bool, can_cool: bool) {
         // copy or clone as we are borrowing self.matrix as mutable
         let _height = self.matrix.nrows() as f64;
         let coordinates: Point2<f64> = Point2::new(x as f64, y as f64);
@@ -271,7 +273,7 @@ impl HeatMap {
                 row += 1;
             }
             // cool gradient down on each pass
-            if *v > 0 {
+            if *v > 0 && can_cool {
                 *v -= 1;
             }
             // distribute heat
@@ -316,10 +318,10 @@ impl HeatMap {
             }
             if *v > 0 {
                 let mut alfa = CANVAS_ALPHA * *v as f64;
-                if alfa < 0.3 {
-                    alfa = 0.3;
-                } else if alfa > 0.8 {
-                    alfa = 0.8;
+                if alfa < BOTTOM_ALFA_RANGE {
+                    alfa =BOTTOM_ALFA_RANGE;
+                } else if alfa > TOP_ALFA_RANGE {
+                    alfa = TOP_ALFA_RANGE;
                 }
                 self.ctx.begin_path();
                 self.ctx.rect(
