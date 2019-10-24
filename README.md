@@ -4,7 +4,7 @@ Heat map library.
 
 ## Development TypeScript (JavaScript)
 
-This library is steel in development process...
+This library is still in development process...
 
 0. You need `nodejs` and `npm` installed.
 
@@ -27,5 +27,4 @@ This library is steel in development process...
 ## TODO:
 
 1. Set environment to build library.
-2. Add WebAssembly worker to get heavy loading (write in Rust and compile).
 

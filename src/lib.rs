@@ -319,7 +319,7 @@ impl HeatMap {
             if *v > 0 {
                 let mut alfa = CANVAS_ALPHA * *v as f64;
                 if alfa < BOTTOM_ALFA_RANGE {
-                    alfa =BOTTOM_ALFA_RANGE;
+                    alfa = BOTTOM_ALFA_RANGE;
                 } else if alfa > TOP_ALFA_RANGE {
                     alfa = TOP_ALFA_RANGE;
                 }
