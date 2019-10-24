@@ -4,7 +4,7 @@ Heat map library.
 
 ## Development
 
-This library is steel in development process...
+This library is still in development process...
 
 0. You need `nodejs` and `npm` installed.
 
