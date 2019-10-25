@@ -1,6 +1,8 @@
 # HEAT MAP
 
-Heat map library.
+Heat map library build with web assembly (Rust) and TypeScript bindings.
+
+<p style="text-align:center;"><img src="https://github.com/Bartoshko/heatmap_wasm_lib/blob/master/assets/heat_map_logo.jpeg" alt="Logo" width="80%" height="80%"></p>
 
 ## Development TypeScript (JavaScript)
 
