@@ -24,7 +24,7 @@ This library is still in development process...
 
 2. Build wasm-pack `wasm-pack build`
 
-## TODO:
+## Contributors:
 
-1. Set environment to build library.
-
+- Claire Amalfitano
+- Bartosz Lenart
