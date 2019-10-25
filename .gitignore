@@ -1,27 +1,21 @@
 # js
 
-node_modules
+/node_modules
 
-#Added by cargo
-#
-#already existing elements are commented out
-
+# Rust wasm
 /target
 **/*.rs.bk
-
-
-#Added by cargo
-#
-#already existing elements are commented out
-
-#/target
-#**/*.rs.bk
 Cargo.lock
 
-#wasm-pack build
+# wasm-pack build
 /pkg
 
 #sublime rust plug in specific
 **/*tmp*
 
+# Distribution files
 *.log
+/dist
+
+# Allow
+!/dist/index.html
