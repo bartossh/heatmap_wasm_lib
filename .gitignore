@@ -1,4 +1,21 @@
 # js
 
-node_modules
-/dist/bundle.js
+/node_modules
+
+# Rust wasm
+/target
+**/*.rs.bk
+Cargo.lock
+
+# wasm-pack build
+/pkg
+
+#sublime rust plug in specific
+**/*tmp*
+
+# Distribution files
+*.log
+/dist
+
+# Allow
+!/dist/index.html

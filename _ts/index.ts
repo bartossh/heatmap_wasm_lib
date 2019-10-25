@@ -1,31 +1,33 @@
 import {heatMapCanvasConfiguration} from './canvas/heatMapCanvas-config';
-import {HeatMapCanvasConfig, HeatMapCanvas, HeatMapGradientPoint, Point, HeatDisplay} from './canvas/heat-map-canvas';
+import {HeatMapCanvasConfig, HeatMapCanvas, HeatMapGradientPoint, Point} from './canvas/heat-map-canvas';
 // export {heatMapCanvasConfiguration, HeatMapGradientPoint, Point, HeatMapCanvasConfig, HeatMapCanvas, HeatDisplay};
 
+
 // This class is in purpose of testing Heat Map Lib canvas.
+// How to play with this:
+// If User move mouse than it collects mouse coordinates and apply them to heat mam. No cooling down
+// If User stops moving mouse than heatmaps is starting to cool down.
 class App {
 
 	private gradinetPoints: HeatMapGradientPoint[] = [];
 	private appElement: HTMLElement;
 	private canvasDivElement: HTMLElement;
 	private heatmap: HeatMapCanvas;
-	private heatDisplays: HeatDisplay[];
 	private counter: number = 0;
 
 	constructor() {
 		this.initialize();
 		this.handleMouseEvent();
-		this.heatDisplays = [HeatDisplay.CIRCLE, HeatDisplay.ELLIPSE, HeatDisplay.ROUNDED, HeatDisplay.SQUARE, HeatDisplay.TEXT];
 	}
 
 	private initialize() {
 		// lets crate canvas and set the id
 		this.appElement = document.getElementById('app');
-		this.canvasDivElement = document.createElement('div');
+		this.canvasDivElement = document.createElement('canvas');
 		this.canvasDivElement.id = 'heatmap-sketch';
 		this.appElement.appendChild(this.canvasDivElement);
 		// lets create heatmap instance
-		this.heatmap = new HeatMapCanvas(heatMapCanvasConfiguration, this.gradinetPoints);
+		this.heatmap = new HeatMapCanvas(heatMapCanvasConfiguration, this.gradinetPoints, 'heatmap-sketch');
 	}
 
 
@@ -35,16 +37,9 @@ class App {
 			const heatPoint: HeatMapGradientPoint = {
 				x: Math.floor(ev.clientX),
 				y: Math.floor(ev.clientY),
-				heat: 2
+				heat: 1
 			};
-			this.heatmap.pushCoordinates(heatPoint);
-		});
-		canvasElement.addEventListener('mousedown', (_: MouseEvent): void => {
-			if (this.counter > this.heatDisplays.length) {
-				this.counter = 0;
-			}
-			heatMapCanvasConfiguration.displayToggle = this.heatDisplays[this.counter];
-			this.counter++
+			this.heatmap.updateCoordinates(heatPoint);
 		});
 	}
 }

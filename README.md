@@ -2,7 +2,7 @@
 
 Heat map library.
 
-## Development
+## Development TypeScript (JavaScript)
 
 This library is still in development process...
 
@@ -16,8 +16,15 @@ This library is still in development process...
 
 4. (optional) Build for prod `$ npm run prod`
 
-## TODO:
+## Development Rust
 
-1. Set environment to build library.
-2. Add WebAssembly worker to get heavy loading (write in Rust and compile).
+0. Install rust: [Rust installation](https://www.rust-lang.org/tools/install)
 
+1. Install wasm-pack [Wasm-pack installation](https://rustwasm.github.io/wasm-pack/installer/)
+
+2. Build wasm-pack `wasm-pack build`
+
+## Contributors:
+
+- Claire Amalfitano
+- Bartosz Lenart
